@@ -8,23 +8,47 @@ export default async function TeacherGradebookIndexPage() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) redirect("/auth/login");
 
+
+    // Fetch Cohorts
+    const { data: teacherProfile } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("user_id", user.id)
+        .single();
+
+    // Assuming teacher sees all cohorts or assigned ones. For now show all active cohorts.
+    const { data: cohorts } = await supabase
+        .from("cohorts")
+        .select("id, name, status")
+        .eq("status", "active")
+        .order("created_at", { ascending: false });
+
     return (
-        <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-6">
-            <div className="p-6 bg-slate-800/50 rounded-full">
-                <BookOpen className="w-12 h-12 text-emerald-400" />
+        <div className="space-y-8">
+            <h1 className="text-2xl font-bold text-white">Jurnal - Qrup Seçimi</h1>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {cohorts?.map(cohort => (
+                    <Link
+                        key={cohort.id}
+                        href={`/dashboard/teacher/cohorts/${cohort.id}/gradebook`}
+                        className="glass p-6 rounded-xl hover:bg-white/5 transition-all group"
+                    >
+                        <div className="flex items-center justify-between mb-4">
+                            <BookOpen className="w-8 h-8 text-emerald-500 group-hover:scale-110 transition-transform" />
+                            <span className="text-xs px-2 py-1 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Aktiv</span>
+                        </div>
+                        <h3 className="text-lg font-bold text-white mb-1 group-hover:text-emerald-400 transition-colors">{cohort.name}</h3>
+                        <p className="text-sm text-slate-400">Tələbə qiymətləri və Davamiyyət</p>
+                    </Link>
+                ))}
+
+                {cohorts?.length === 0 && (
+                    <div className="col-span-full text-center py-12 text-slate-500">
+                        Aktiv qrup tapılmadı.
+                    </div>
+                )}
             </div>
-            <div>
-                <h1 className="text-2xl font-bold text-white mb-2">Jurnal</h1>
-                <p className="text-slate-400 max-w-md mx-auto">
-                    Jurnalı açmaq üçün zəhmət olmasa "Qruplarım" bölməsindən bir qrup seçin.
-                </p>
-            </div>
-            <Link
-                href="/dashboard/teacher/cohorts"
-                className="px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-medium transition-colors"
-            >
-                Qruplarım Siyahısına Keç
-            </Link>
         </div>
     );
 }
