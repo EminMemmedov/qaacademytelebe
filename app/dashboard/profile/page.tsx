@@ -103,7 +103,7 @@ export default async function ProfilePage() {
                 <h3 className="text-lg font-semibold text-white border-b border-slate-800 pb-2 mb-4">Təhlükəsizlik</h3>
                 <div className="flex items-center justify-between">
                     <div>
-                        <p className="text-white font-medium flex items-center"><Key_Round className="w-4 h-4 mr-2" /> Şifrə</p>
+                        <p className="text-white font-medium flex items-center"><KeyRound className="w-4 h-4 mr-2" /> Şifrə</p>
                         <p className="text-xs text-slate-500">Şifrəni dəyişmək üçün email təsdiqi tələb oluna bilər.</p>
                     </div>
 
