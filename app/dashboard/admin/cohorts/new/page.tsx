@@ -19,7 +19,7 @@ export default async function NewCohortPage() {
     if (profile?.role !== "admin") return <div>Access Denied</div>;
 
     // 2. Fetch Courses (to link cohort to a course)
-    const { data: courses } = await supabase.from("courses").select("id, title");
+    const { data: courses } = await supabase.from("courses").select("id, title, duration_months, lessons_per_month");
 
     // 3. Server Action
     async function createCohort(formData: FormData) {
