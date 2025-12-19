@@ -45,13 +45,12 @@ export function AddMaterialForm({ lessonId, cohortId, action }: { lessonId: stri
             </div>
 
             <div>
-                <label className="text-xs text-slate-400 mb-1 block">Fayl Seçin (PDF, PPTX, DOCX)</label>
+                <label className="text-xs text-slate-400 mb-1 block">Link (Google Drive, Dropbox, PDF url)</label>
                 <input
-                    type="file"
-                    name="file"
-                    accept=".pdf,.doc,.docx,.ppt,.pptx,.txt"
+                    name="url"
+                    placeholder="https://..."
                     required
-                    className="w-full text-xs text-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-emerald-500/10 file:text-emerald-400 hover:file:bg-emerald-500/20"
+                    className="w-full bg-slate-900/50 border border-slate-700 rounded px-2 py-2 text-white text-sm focus:border-emerald-500 outline-none"
                 />
             </div>
 
@@ -60,7 +59,7 @@ export function AddMaterialForm({ lessonId, cohortId, action }: { lessonId: stri
                 className="w-full py-2 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 hover:text-emerald-300 border border-emerald-600/50 rounded text-sm font-medium transition-colors flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
             >
                 {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Plus className="w-4 h-4 mr-2" />}
-                {loading ? "Yüklənir..." : "Yüklə"}
+                {loading ? "Əlavə olunur..." : "Əlavə Et"}
             </button>
         </form>
     );
