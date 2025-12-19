@@ -27,10 +27,7 @@ export default async function AdminUsersPage({
     // 2. Fetch Users (Profiles) + Cohort info
     let query = supabase
         .from("profiles")
-        .select(`
-            *,
-            cohort:cohorts(name)
-        `)
+        .select("*") // Simplified query to debug
         .order("created_at", { ascending: false });
 
     if (q) {
@@ -87,10 +84,10 @@ export default async function AdminUsersPage({
                                     </td>
                                     <td className="p-4">
                                         <span className={`inline-flex items-center px-2 py-1 rounded-md text-xs font-medium border ${profile.role === 'admin'
-                                                ? 'bg-purple-500/10 text-purple-400 border-purple-500/20'
-                                                : profile.role === 'teacher'
-                                                    ? 'bg-blue-500/10 text-blue-400 border-blue-500/20'
-                                                    : 'bg-slate-800 text-slate-300 border-slate-700'
+                                            ? 'bg-purple-500/10 text-purple-400 border-purple-500/20'
+                                            : profile.role === 'teacher'
+                                                ? 'bg-blue-500/10 text-blue-400 border-blue-500/20'
+                                                : 'bg-slate-800 text-slate-300 border-slate-700'
                                             }`}>
                                             {profile.role === 'admin' ? <Shield className="w-3 h-3 mr-1" /> : <User className="w-3 h-3 mr-1" />}
                                             <span className="capitalize">{profile.role}</span>
@@ -98,11 +95,11 @@ export default async function AdminUsersPage({
                                     </td>
                                     <td className="p-4">
                                         {/* @ts-ignore */}
-                                        {profile.cohort ? (
+                                        {/* Simplified view for debug */}
+                                        {profile.cohort_id ? (
                                             <span className="inline-flex items-center text-sm text-emerald-400">
                                                 <Users className="w-3 h-3 mr-1.5" />
-                                                {/* @ts-ignore */}
-                                                {profile.cohort.name}
+                                                ID: {profile.cohort_id.slice(0, 8)}...
                                             </span>
                                         ) : (
                                             <span className="text-sm text-slate-600 italic">Təyin edilməyib</span>
