@@ -6,18 +6,27 @@ import { useState } from "react";
 // Better pattern: Define action in a separate 'actions.ts' file. 
 // OR: Just keep it simple and use useFormStatus if we had it, but for now standard form submit is fine.
 
-export function AddMaterialForm({ action }: { action: (formData: FormData) => Promise<void> }) {
+export function AddMaterialForm({ lessonId, cohortId, action }: { lessonId: string, cohortId: string, action: any }) {
     const [loading, setLoading] = useState(false);
 
     async function handleSubmit(formData: FormData) {
         setLoading(true);
         try {
-            await action(formData);
-            // Reset form? Hard with native action unless we use useRef for form.
-            // For now, let rsc revalidate handle it.
+            // We call the action directly. Note: action is already bound or we pass args here if we change signature.
+            // Actually, best practice with Server Actions + Client Components is passing valid closure BUT since we moved to actions.ts
+            // we should probably import the action in the Parent and pass it down, OR import in Client Component?
+            // Next.js allows importing Server Actions into Client Components. 
+            // Let's assume 'action' prop is the bound version or wrapper.
+            // BUT wait, in the previous step I defined action as (formData, lessonId, cohortId).
+            // Passing it via props is cleaner if we bind it in the parent.
+
+            const result = await action(formData);
+            if (result && !result.success) {
+                alert(result.message);
+            }
         } catch (e) {
             console.error(e);
-            alert("Xəta baş verdi. Fayl ölçüsünü yoxlayın.");
+            alert("Xəta baş verdi.");
         } finally {
             setLoading(false);
         }
