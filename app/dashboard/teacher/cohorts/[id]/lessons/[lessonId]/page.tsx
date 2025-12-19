@@ -5,6 +5,7 @@ import Link from "next/link";
 import { revalidatePath } from "next/cache";
 
 import { AddMaterialForm } from "./components/add-material-form";
+import { addMaterialAction } from "./actions";
 
 export default async function ManageLessonPage({ params }: { params: Promise<{ id: string, lessonId: string }> }) {
     const { id: cohortId, lessonId } = await params;
@@ -52,45 +53,9 @@ export default async function ManageLessonPage({ params }: { params: Promise<{ i
         revalidatePath(`/dashboard/teacher/cohorts/${cohortId}/lessons/${lessonId}`);
     }
 
-    async function addMaterial(formData: FormData) {
+    async function wrappedAddMaterial(formData: FormData) {
         "use server";
-        const title = formData.get("title") as string;
-        const file = formData.get("file") as File;
-
-        const supabase = await createClient();
-
-        if (!title || !file || file.size === 0) {
-            // Basic validation
-            return;
-        }
-
-        // 1. Upload File to Storage
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${lessonId}/${Date.now()}_${Math.random().toString(36).slice(2)}.${fileExt}`;
-
-        const { error: uploadError } = await supabase.storage
-            .from('materials')
-            .upload(fileName, file);
-
-        if (uploadError) {
-            console.error("Upload failed:", uploadError);
-            throw new Error("File upload failed");
-        }
-
-        // 2. Get Public URL
-        const { data: { publicUrl } } = supabase.storage
-            .from('materials')
-            .getPublicUrl(fileName);
-
-        // 3. Save to DB
-        await supabase.from("materials").insert({
-            lesson_id: lessonId,
-            title,
-            file_url: publicUrl,
-            type: "file"
-        });
-
-        revalidatePath(`/dashboard/teacher/cohorts/${cohortId}/lessons/${lessonId}`);
+        return await addMaterialAction(formData, lessonId, cohortId);
     }
 
     async function deleteMaterial(materialId: string) { // Can't easily invoke direct arg func from form without hidden input or bind
@@ -188,7 +153,7 @@ export default async function ManageLessonPage({ params }: { params: Promise<{ i
                         {(!materials || materials.length === 0) && <p className="text-xs text-slate-500 italic">Material yoxdur.</p>}
                     </div>
 
-                    <AddMaterialForm action={addMaterial} />
+                    <AddMaterialForm lessonId={lessonId} cohortId={cohortId} action={wrappedAddMaterial} />
                 </div>
             </div>
 
