@@ -69,28 +69,46 @@ export default async function LessonDetailPage({ params }: { params: Promise<{ i
 
     const embedUrl = getYoutubeEmbedUrl(lesson.video_url);
 
+
     // --- SUBMIT ACTION ---
     async function submitAssignment(formData: FormData) {
         "use server";
-        const assignmentId = formData.get("assignment_id") as string;
-        const link = formData.get("link") as string;
-        const comment = formData.get("comment") as string;
+        try {
+            const assignmentId = formData.get("assignment_id") as string;
+            const link = formData.get("link") as string;
+            const comment = formData.get("comment") as string;
 
-        const supabase = await createClient();
-        const { data: { user } } = await supabase.auth.getUser();
+            console.log("Submitting assignment:", { assignmentId, link, comment });
 
-        if (!user) return; // Should not happen
+            const supabase = await createClient();
+            const { data: { user } } = await supabase.auth.getUser();
 
-        await supabase.from("submissions").insert({
-            assignment_id: assignmentId,
-            student_id: user.id,
-            submission_link: link,
-            comments: comment,
-            status: "submitted",
-            submitted_at: new Date().toISOString()
-        });
+            if (!user) {
+                console.error("User not found during submission");
+                return;
+            }
 
-        revalidatePath(`/dashboard/lessons/${lessonId}`);
+            const { error } = await supabase.from("submissions").insert({
+                assignment_id: assignmentId,
+                student_id: user.id,
+                submission_link: link,
+                comments: comment,
+                status: "submitted",
+                submitted_at: new Date().toISOString()
+            });
+
+            if (error) {
+                console.error("Submission Error Details:", error);
+                // If the error is regarding relation "submissions" does not exist, we know the table name is wrong.
+                // If the error is RLS, we know the policy is still wrong.
+                throw new Error("Failed to submit assignment: " + error.message);
+            }
+
+            console.log("Submission successful!");
+            revalidatePath(`/dashboard/lessons/${lessonId}`);
+        } catch (e) {
+            console.error("Unexpected submission error:", e);
+        }
     }
 
     return (
