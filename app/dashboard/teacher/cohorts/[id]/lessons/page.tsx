@@ -34,7 +34,13 @@ export default async function TeacherLessonsListPage({ params }: { params: Promi
                         <p className="text-slate-400">Dərs proqramı və materialların idarə edilməsi</p>
                     </div>
                 </div>
-                {/* Normally admins create lessons, but teachers might need to add one too. Let's redirect to New Lesson (if needed) or keep it simple. */}
+                <Link
+                    href={`/dashboard/teacher/cohorts/${cohortId}/lessons/new`}
+                    className="flex items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-medium transition-colors shadow-lg shadow-emerald-900/20"
+                >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Yeni Dərs
+                </Link>
             </div>
 
             <div className="grid gap-4">
