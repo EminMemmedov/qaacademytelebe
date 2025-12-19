@@ -53,9 +53,41 @@ export default async function ManageLessonPage({ params }: { params: Promise<{ i
     async function addMaterial(formData: FormData) {
         "use server";
         const title = formData.get("title") as string;
-        const url = formData.get("url") as string;
+        const file = formData.get("file") as File;
+
         const supabase = await createClient();
-        await supabase.from("materials").insert({ lesson_id: lessonId, title, file_url: url, type: "link" });
+
+        if (!title || !file || file.size === 0) {
+            // Basic validation
+            return;
+        }
+
+        // 1. Upload File to Storage
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${lessonId}/${Date.now()}_${Math.random().toString(36).slice(2)}.${fileExt}`;
+
+        const { error: uploadError } = await supabase.storage
+            .from('materials')
+            .upload(fileName, file);
+
+        if (uploadError) {
+            console.error("Upload failed:", uploadError);
+            throw new Error("File upload failed");
+        }
+
+        // 2. Get Public URL
+        const { data: { publicUrl } } = supabase.storage
+            .from('materials')
+            .getPublicUrl(fileName);
+
+        // 3. Save to DB
+        await supabase.from("materials").insert({
+            lesson_id: lessonId,
+            title,
+            file_url: publicUrl,
+            type: "file"
+        });
+
         revalidatePath(`/dashboard/teacher/cohorts/${cohortId}/lessons/${lessonId}`);
     }
 
@@ -154,11 +186,25 @@ export default async function ManageLessonPage({ params }: { params: Promise<{ i
                         {(!materials || materials.length === 0) && <p className="text-xs text-slate-500 italic">Material yoxdur.</p>}
                     </div>
 
-                    <form action={addMaterial} className="space-y-2 pt-2 border-t border-slate-800">
-                        <input name="title" placeholder="Başlıq (Məs: Slaydlar)" required className="w-full bg-slate-900/50 border border-slate-700 rounded px-2 py-1.5 text-white text-xs" />
-                        <input name="url" placeholder="Link (Google Drive...)" required className="w-full bg-slate-900/50 border border-slate-700 rounded px-2 py-1.5 text-white text-xs" />
-                        <button className="w-full py-1.5 bg-amber-600/20 hover:bg-amber-600/30 text-amber-400 hover:text-amber-300 border border-amber-600/50 rounded text-xs font-medium transition-colors flex items-center justify-center">
-                            <Plus className="w-3 h-3 mr-1" /> Əlavə Et
+                    <form action={addMaterial} className="space-y-4 pt-4 border-t border-slate-800">
+                        <div>
+                            <label className="text-xs text-slate-400 mb-1 block">Materialın Adı (Məs: Lecture 1 Slides)</label>
+                            <input name="title" required className="w-full bg-slate-900/50 border border-slate-700 rounded px-2 py-2 text-white text-sm focus:border-emerald-500 outline-none" />
+                        </div>
+
+                        <div>
+                            <label className="text-xs text-slate-400 mb-1 block">Fayl Seçin (PDF, PPTX, DOCX)</label>
+                            <input
+                                type="file"
+                                name="file"
+                                accept=".pdf,.doc,.docx,.ppt,.pptx,.txt"
+                                required
+                                className="w-full text-xs text-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-emerald-500/10 file:text-emerald-400 hover:file:bg-emerald-500/20"
+                            />
+                        </div>
+
+                        <button className="w-full py-2 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 hover:text-emerald-300 border border-emerald-600/50 rounded text-sm font-medium transition-colors flex items-center justify-center">
+                            <Plus className="w-4 h-4 mr-2" /> Yüklə
                         </button>
                     </form>
                 </div>
