@@ -23,6 +23,11 @@ export function AddMaterialForm({ lessonId, cohortId, action }: { lessonId: stri
             const result = await action(formData);
             if (result && !result.success) {
                 alert(result.message);
+            } else {
+                alert("Material uğurla yükləndi! ✅");
+                // Optional: Reset file input by clearing the form
+                const form = document.getElementById("upload-form") as HTMLFormElement;
+                if (form) form.reset();
             }
         } catch (e) {
             console.error(e);
@@ -33,7 +38,7 @@ export function AddMaterialForm({ lessonId, cohortId, action }: { lessonId: stri
     }
 
     return (
-        <form action={handleSubmit} className="space-y-4 pt-4 border-t border-slate-800">
+        <form id="upload-form" action={handleSubmit} className="space-y-4 pt-4 border-t border-slate-800">
             <div>
                 <label className="text-xs text-slate-400 mb-1 block">Materialın Adı (Məs: Lecture 1 Slides)</label>
                 <input name="title" required className="w-full bg-slate-900/50 border border-slate-700 rounded px-2 py-2 text-white text-sm focus:border-emerald-500 outline-none" />
