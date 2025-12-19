@@ -28,15 +28,9 @@ export default function Home() {
         <div className="flex gap-4 justify-center">
           <Link
             href="/auth/login"
-            className="px-8 py-3 bg-white text-black rounded-full font-bold hover:bg-slate-200 transition-colors flex items-center"
+            className="px-10 py-4 bg-emerald-600 text-white rounded-full font-bold hover:bg-emerald-500 transition-colors flex items-center shadow-lg shadow-emerald-900/50"
           >
-            Giriş <ArrowRight className="ml-2 w-4 h-4" />
-          </Link>
-          <Link
-            href="/dashboard"
-            className="px-8 py-3 bg-slate-800 text-white rounded-full font-bold hover:bg-slate-700 transition-colors border border-slate-700"
-          >
-            Demo Panel
+            Portala Giriş <ArrowRight className="ml-2 w-5 h-5" />
           </Link>
         </div>
       </div>
