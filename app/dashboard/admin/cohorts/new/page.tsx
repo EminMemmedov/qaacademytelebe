@@ -79,7 +79,10 @@ export default async function NewCohortPage() {
                         >
                             <option value="">Seçin...</option>
                             {courses?.map(course => (
-                                <option key={course.id} value={course.id}>{course.title}</option>
+                                <option key={course.id} value={course.id}>
+                                    {/* @ts-ignore */}
+                                    {course.title} {course.duration_months ? `(${course.duration_months} ay - ${course.lessons_per_month ? course.lessons_per_month * course.duration_months : ''} dərs)` : ''}
+                                </option>
                             ))}
                         </select>
                     </div>
