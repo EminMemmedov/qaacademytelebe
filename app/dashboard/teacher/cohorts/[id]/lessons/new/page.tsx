@@ -19,7 +19,8 @@ export default async function NewLessonPage({ params }: { params: Promise<{ id: 
         "use server";
         const title = formData.get("title") as string;
         const date = formData.get("date") as string;
-        // const content = formData.get("content") as string; // Future
+
+        console.log("Attempting to create lesson:", { title, date, cohortId, userId: user?.id });
 
         const supabase = await createClient();
 
@@ -31,20 +32,20 @@ export default async function NewLessonPage({ params }: { params: Promise<{ id: 
 
         const newOrder = (count || 0) + 1;
 
-        const { error } = await supabase.from("lessons").insert({
+        const { data, error } = await supabase.from("lessons").insert({
             cohort_id: cohortId,
             title,
-            date: date || null,
+            date: date ? new Date(date).toISOString() : null,
             order_index: newOrder,
-            full_content: "" // Initialize empty
-        });
+            content: "" // Initialize empty content
+        }).select();
 
         if (error) {
-            console.error("Lesson creation failed:", error);
-            // Handle error, maybe query param?
-            return;
+            console.error("FATAL DB ERROR creating lesson:", error);
+            throw new Error(`Failed to create lesson: ${error.message} (Code: ${error.code})`);
         }
 
+        console.log("Lesson created successfully:", data);
         redirect(`/dashboard/teacher/cohorts/${cohortId}/lessons`);
     }
 
@@ -82,7 +83,7 @@ export default async function NewLessonPage({ params }: { params: Promise<{ id: 
                                 Tarix (Planlaşdırılan)
                             </label>
                             <input
-                                type="datetime-local" // or just date if time not important
+                                type="datetime-local"
                                 name="date"
                                 className="w-full bg-slate-900/50 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 appearance-none [&::-webkit-calendar-picker-indicator]:invert"
                             />
