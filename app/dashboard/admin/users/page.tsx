@@ -27,7 +27,10 @@ export default async function AdminUsersPage({
     // 2. Fetch Users (Profiles) + Cohort info
     let query = supabase
         .from("profiles")
-        .select("*") // Simplified query to debug
+        .select(`
+            *,
+            cohort:cohorts(name)
+        `)
         .order("created_at", { ascending: false });
 
     if (q) {
@@ -95,11 +98,11 @@ export default async function AdminUsersPage({
                                     </td>
                                     <td className="p-4">
                                         {/* @ts-ignore */}
-                                        {/* Simplified view for debug */}
-                                        {profile.cohort_id ? (
+                                        {profile.cohort ? (
                                             <span className="inline-flex items-center text-sm text-emerald-400">
                                                 <Users className="w-3 h-3 mr-1.5" />
-                                                ID: {profile.cohort_id.slice(0, 8)}...
+                                                {/* @ts-ignore */}
+                                                {profile.cohort.name}
                                             </span>
                                         ) : (
                                             <span className="text-sm text-slate-600 italic">Təyin edilməyib</span>
