@@ -27,8 +27,9 @@ export default async function NewCohortPage() {
 
         const name = formData.get("name") as string;
         const courseId = formData.get("course_id") as string;
-        const startDate = formData.get("start_date") as string;
-        const endDate = formData.get("end_date") as string;
+        // Dates are optional/calculated later
+        const startDate = null;
+        const endDate = null;
 
         const supabase = await createClient();
 
@@ -85,27 +86,6 @@ export default async function NewCohortPage() {
                                 </option>
                             ))}
                         </select>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-6">
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-slate-300">Başlanğıc Tarixi</label>
-                            <input
-                                type="date"
-                                name="start_date"
-                                required
-                                className="w-full bg-slate-900/50 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium text-slate-300">Bitmə Tarixi</label>
-                            <input
-                                type="date"
-                                name="end_date"
-                                required
-                                className="w-full bg-slate-900/50 border border-slate-700 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                            />
-                        </div>
                     </div>
 
                     <div className="pt-6 border-t border-slate-800 flex justify-end gap-3">
