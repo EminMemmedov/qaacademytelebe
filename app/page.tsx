@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 
 export default function Home() {
@@ -6,7 +7,17 @@ export default function Home() {
     <div className="min-h-screen flex flex-col items-center justify-center p-8 relative overflow-hidden text-center">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-[#0a0a0a] to-black -z-10" />
 
-      <div className="max-w-2xl space-y-8 animate-in fade-in zoom-in duration-700">
+      <div className="max-w-2xl space-y-8 animate-in fade-in zoom-in duration-700 flex flex-col items-center">
+        <div className="w-40 h-40 bg-white rounded-3xl flex items-center justify-center mb-6 shadow-2xl shadow-emerald-900/20">
+          <div className="relative w-32 h-32">
+            <Image
+              src="/logo.png"
+              alt="QA Academy"
+              fill
+              className="object-contain"
+            />
+          </div>
+        </div>
         <h1 className="text-5xl md:text-7xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-500">
           QA Academy
         </h1>

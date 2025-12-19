@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { LayoutDashboard, BookOpen, FileText, CheckCircle, User } from "lucide-react";
@@ -18,8 +19,16 @@ export function Sidebar() {
 
     return (
         <div className="flex h-full w-64 flex-col bg-slate-900 text-white">
-            <div className="flex h-16 items-center justify-center border-b border-slate-800">
-                <h1 className="text-xl font-bold text-emerald-400">QA Academy</h1>
+            <div className="flex h-20 items-center justify-center border-b border-slate-800 bg-white">
+                <div className="relative w-32 h-12">
+                    <Image
+                        src="/logo.png"
+                        alt="QA Academy"
+                        fill
+                        className="object-contain"
+                        priority
+                    />
+                </div>
             </div>
             <nav className="flex-1 space-y-1 px-2 py-4">
                 {navigation.map((item) => {

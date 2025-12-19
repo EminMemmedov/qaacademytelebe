@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 
 export default function LoginPage() {
@@ -9,9 +10,18 @@ export default function LoginPage() {
             <div className="absolute bottom-[-20%] right-[-10%] w-[500px] h-[500px] bg-blue-600/20 rounded-full blur-[100px]" />
 
             <div className="glass w-full max-w-md p-8 rounded-2xl border border-white/10 relative z-10 shadow-2xl">
-                <div className="text-center mb-8">
-                    <h1 className="text-3xl font-bold text-white mb-2">QA Academy</h1>
-                    <p className="text-slate-400">Tələbə Portalına Giriş</p>
+                <div className="text-center mb-8 flex flex-col items-center">
+                    <div className="w-24 h-24 bg-white rounded-2xl flex items-center justify-center mb-4 shadow-lg">
+                        <div className="relative w-20 h-20">
+                            <Image
+                                src="/logo.png"
+                                alt="QA Academy"
+                                fill
+                                className="object-contain"
+                            />
+                        </div>
+                    </div>
+                    <h1 className="text-2xl font-bold text-white mb-2">Tələbə Portalı</h1>
                 </div>
 
                 <form className="space-y-4">
