@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { User, Mail, Shield, Book, Key_Round } from "lucide-react";
+import { User, Mail, Shield, Book, KeyRound } from "lucide-react";
 
 export default async function ProfilePage() {
     const supabase = await createClient();
