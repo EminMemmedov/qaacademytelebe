@@ -141,28 +141,14 @@ export default async function ManageLessonPage({ params }: { params: Promise<{ i
                     </span>
                 </h3>
 
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left">
-                        <thead className="text-xs text-slate-500 uppercase border-b border-slate-800">
-                            <tr>
-                                <th className="p-3">Tələbə</th>
-                                <th className="p-3 text-center">Status</th>
-                                <th className="p-3 text-right">Əməliyyat</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-800">
-                            {students?.map(student => {
-                                const record = attendance?.find(r => r.student_id === student.id);
-                                const isPresent = record?.status === 'present';
-                                const isAbsent = record?.status === 'absent';
 
-                                <AttendanceTracker
-                                    students={students || []}
-                                    initialAttendance={attendance || []}
-                                    lessonId={lessonId}
-                                    cohortId={cohortId}
-                                />
+                <AttendanceTracker
+                    students={students || []}
+                    initialAttendance={attendance || []}
+                    lessonId={lessonId}
+                    cohortId={cohortId}
+                />
             </div>
-                </div>
-                );
+        </div>
+    );
 }
