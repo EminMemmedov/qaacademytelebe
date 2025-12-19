@@ -1,4 +1,3 @@
-import { Card } from "@/components/ui/card"; // Accessing potential UI component (I will mock it inline if needed or create it)
 import { BookOpen, CheckCircle, Clock, AlertCircle } from "lucide-react";
 
 // Mock Data
