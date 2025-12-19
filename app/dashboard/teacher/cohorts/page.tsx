@@ -53,12 +53,19 @@ export default async function TeacherCohortsPage() {
                         {/* @ts-ignore */}
                         <p className="text-sm text-slate-400 mb-4">{cohort.course?.title}</p>
 
-                        <div className="grid grid-cols-2 gap-2 mt-4">
+                        <div className="grid grid-cols-3 gap-2 mt-4">
+                            <Link
+                                href={`/dashboard/teacher/cohorts/${cohort.id}/lessons`}
+                                className="flex items-center justify-center px-3 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-medium transition-colors"
+                            >
+                                <BookOpen className="w-3 h-3 mr-1" />
+                                Dərslər
+                            </Link>
                             <Link
                                 href={`/dashboard/teacher/cohorts/${cohort.id}/gradebook`}
                                 className="flex items-center justify-center px-3 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-xs font-medium transition-colors"
                             >
-                                <BookOpen className="w-3 h-3 mr-1" />
+                                <Users className="w-3 h-3 mr-1" />
                                 Jurnal
                             </Link>
                             <Link
