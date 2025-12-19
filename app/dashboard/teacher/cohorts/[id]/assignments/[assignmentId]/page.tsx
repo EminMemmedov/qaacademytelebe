@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { ArrowLeft, ExternalLink, check } from "lucide-react";
+import { ArrowLeft, ExternalLink, Check } from "lucide-react";
 import Link from "next/link";
 import { revalidatePath } from "next/cache";
 
