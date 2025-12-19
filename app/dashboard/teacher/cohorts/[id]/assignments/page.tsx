@@ -63,14 +63,17 @@ export default async function TeacherAssignmentsPage({ params }: { params: Promi
                                 <p className="text-sm text-slate-400">Dərs: {assignment.lesson?.title}</p>
                             </div>
                         </div>
-                        <div className="text-right">
+                        <div className="text-right flex flex-col items-end space-y-2">
                             <div className="flex items-center text-sm text-slate-400 mb-1 justify-end">
                                 <Calendar className="w-4 h-4 mr-1" />
                                 {assignment.due_date ? new Date(assignment.due_date).toLocaleDateString() : "Tarixsiz"}
                             </div>
-                            <span className="text-xs px-2 py-1 rounded bg-slate-800 text-slate-300">
-                                Status: Aktiv
-                            </span>
+                            <Link
+                                href={`/dashboard/teacher/cohorts/${cohortId}/assignments/${assignment.id}`}
+                                className="px-3 py-1.5 bg-slate-800 hover:bg-emerald-600 hover:text-white text-emerald-400 rounded text-xs font-medium transition-colors border border-emerald-500/20"
+                            >
+                                Qiymətləndir
+                            </Link>
                         </div>
                     </div>
                 ))}
