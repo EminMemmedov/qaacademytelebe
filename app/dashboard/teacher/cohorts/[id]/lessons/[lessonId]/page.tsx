@@ -4,6 +4,8 @@ import { ArrowLeft, Video, FileText, Check, X, Save, Plus, Trash2 } from "lucide
 import Link from "next/link";
 import { revalidatePath } from "next/cache";
 
+import { AddMaterialForm } from "./components/add-material-form";
+
 export default async function ManageLessonPage({ params }: { params: Promise<{ id: string, lessonId: string }> }) {
     const { id: cohortId, lessonId } = await params;
     const supabase = await createClient();
@@ -186,27 +188,7 @@ export default async function ManageLessonPage({ params }: { params: Promise<{ i
                         {(!materials || materials.length === 0) && <p className="text-xs text-slate-500 italic">Material yoxdur.</p>}
                     </div>
 
-                    <form action={addMaterial} className="space-y-4 pt-4 border-t border-slate-800">
-                        <div>
-                            <label className="text-xs text-slate-400 mb-1 block">Materialın Adı (Məs: Lecture 1 Slides)</label>
-                            <input name="title" required className="w-full bg-slate-900/50 border border-slate-700 rounded px-2 py-2 text-white text-sm focus:border-emerald-500 outline-none" />
-                        </div>
-
-                        <div>
-                            <label className="text-xs text-slate-400 mb-1 block">Fayl Seçin (PDF, PPTX, DOCX)</label>
-                            <input
-                                type="file"
-                                name="file"
-                                accept=".pdf,.doc,.docx,.ppt,.pptx,.txt"
-                                required
-                                className="w-full text-xs text-slate-300 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-emerald-500/10 file:text-emerald-400 hover:file:bg-emerald-500/20"
-                            />
-                        </div>
-
-                        <button className="w-full py-2 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 hover:text-emerald-300 border border-emerald-600/50 rounded text-sm font-medium transition-colors flex items-center justify-center">
-                            <Plus className="w-4 h-4 mr-2" /> Yüklə
-                        </button>
-                    </form>
+                    <AddMaterialForm action={addMaterial} />
                 </div>
             </div>
 
