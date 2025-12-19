@@ -5,6 +5,7 @@ import Link from "next/link";
 import { revalidatePath } from "next/cache";
 
 import { AddMaterialForm } from "./components/add-material-form";
+import { AttendanceTracker } from "./components/attendance-tracker";
 import { addMaterialAction } from "./actions";
 
 export default async function ManageLessonPage({ params }: { params: Promise<{ id: string, lessonId: string }> }) {
@@ -68,33 +69,7 @@ export default async function ManageLessonPage({ params }: { params: Promise<{ i
         revalidatePath(`/dashboard/teacher/cohorts/${cohortId}/lessons/${lessonId}`);
     }
 
-    async function markAttendance(formData: FormData) {
-        "use server";
-        const studentId = formData.get("student_id") as string;
-        const status = formData.get("status") as string; // 'present' or 'absent'
-
-        const supabase = await createClient();
-
-        // Check if record exists
-        const { data: existing } = await supabase
-            .from("attendance_records")
-            .select("id")
-            .eq("lesson_id", lessonId)
-            .eq("student_id", studentId)
-            .single();
-
-        if (existing) {
-            await supabase.from("attendance_records").update({ status }).eq("id", existing.id);
-        } else {
-            await supabase.from("attendance_records").insert({
-                lesson_id: lessonId,
-                student_id: studentId,
-                status,
-                created_by: user?.id
-            });
-        }
-        revalidatePath(`/dashboard/teacher/cohorts/${cohortId}/lessons/${lessonId}`);
-    }
+    /* Old server actions removed, now using external actions */
 
 
     return (
@@ -181,39 +156,13 @@ export default async function ManageLessonPage({ params }: { params: Promise<{ i
                                 const isPresent = record?.status === 'present';
                                 const isAbsent = record?.status === 'absent';
 
-                                return (
-                                    <tr key={student.id} className="hover:bg-white/5">
-                                        <td className="p-3 font-medium text-white">{student.full_name}</td>
-                                        <td className="p-3 text-center">
-                                            {isPresent && <span className="text-emerald-400 text-xs font-bold bg-emerald-500/10 px-2 py-1 rounded">İştirak edir</span>}
-                                            {isAbsent && <span className="text-red-400 text-xs font-bold bg-red-500/10 px-2 py-1 rounded">Qayib</span>}
-                                            {!record && <span className="text-slate-500 text-xs">-</span>}
-                                        </td>
-                                        <td className="p-3 text-right">
-                                            <div className="flex justify-end space-x-2">
-                                                <form action={markAttendance}>
-                                                    <input type="hidden" name="student_id" value={student.id} />
-                                                    <input type="hidden" name="status" value="present" />
-                                                    <button className={`p-1.5 rounded transition-colors ${isPresent ? 'bg-emerald-600 text-white' : 'bg-slate-800 text-slate-400 hover:text-emerald-400'}`} title="Var">
-                                                        <Check className="w-4 h-4" />
-                                                    </button>
-                                                </form>
-                                                <form action={markAttendance}>
-                                                    <input type="hidden" name="student_id" value={student.id} />
-                                                    <input type="hidden" name="status" value="absent" />
-                                                    <button className={`p-1.5 rounded transition-colors ${isAbsent ? 'bg-red-600 text-white' : 'bg-slate-800 text-slate-400 hover:text-red-400'}`} title="Yoxdur">
-                                                        <X className="w-4 h-4" />
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                );
-                            })}
-                        </tbody>
-                    </table>
-                </div>
+                                <AttendanceTracker
+                                    students={students || []}
+                                    initialAttendance={attendance || []}
+                                    lessonId={lessonId}
+                                    cohortId={cohortId}
+                                />
             </div>
-        </div>
-    );
+                </div>
+                );
 }
