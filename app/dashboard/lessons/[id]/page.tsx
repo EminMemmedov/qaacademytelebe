@@ -1,7 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
-import { ArrowLeft, Download, FileText, ExternalLink, Link as LinkIcon } from "lucide-react";
+import { ArrowLeft, Download, FileText, ExternalLink, Link as LinkIcon, CheckCircle, Clock } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 
 interface Params {
     params: {
@@ -30,12 +31,24 @@ export default async function LessonDetailPage({ params }: { params: Promise<{ i
                 id,
                 title,
                 description,
-                due_date,
-                status
+                due_date
             )
         `)
         .eq("id", lessonId)
         .single();
+
+    // 3. Check Submission Status (Create Map)
+    // We need to know if the student already submitted ANY of these assignments
+    let submissions: any[] = [];
+    if (lesson?.assignments?.length > 0) {
+        const assignmentIds = lesson.assignments.map((a: any) => a.id);
+        const { data: subs } = await supabase
+            .from("submissions")
+            .select("*")
+            .in("assignment_id", assignmentIds)
+            .eq("student_id", user.id);
+        submissions = subs || [];
+    }
 
     if (error || !lesson) {
         return (
@@ -55,6 +68,30 @@ export default async function LessonDetailPage({ params }: { params: Promise<{ i
     };
 
     const embedUrl = getYoutubeEmbedUrl(lesson.video_url);
+
+    // --- SUBMIT ACTION ---
+    async function submitAssignment(formData: FormData) {
+        "use server";
+        const assignmentId = formData.get("assignment_id") as string;
+        const link = formData.get("link") as string;
+        const comment = formData.get("comment") as string;
+
+        const supabase = await createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+
+        if (!user) return; // Should not happen
+
+        await supabase.from("submissions").insert({
+            assignment_id: assignmentId,
+            student_id: user.id,
+            submission_link: link,
+            comments: comment,
+            status: "submitted",
+            submitted_at: new Date().toISOString()
+        });
+
+        revalidatePath(`/dashboard/lessons/${lessonId}`);
+    }
 
     return (
         <div className="space-y-6 max-w-5xl mx-auto">
@@ -85,7 +122,7 @@ export default async function LessonDetailPage({ params }: { params: Promise<{ i
                     <div>
                         <h1 className="text-3xl font-bold text-white mb-2">{lesson.title}</h1>
                         <p className="text-slate-400 leading-relaxed whitespace-pre-wrap">
-                            {lesson.description || "Təsvir yoxdur."}
+                            {lesson.content || lesson.full_content || "Təsvir yoxdur."}
                         </p>
                     </div>
 
@@ -126,28 +163,70 @@ export default async function LessonDetailPage({ params }: { params: Promise<{ i
                     </div>
                 </div>
 
-                {/* Assignments Sidebar */}
+                {/* Assignments Sidebar with Submission Form */}
                 <div className="lg:col-span-1">
-                    <div className="glass rounded-xl p-6 sticky top-6">
-                        <h3 className="tex-sm font-bold text-slate-400 uppercase tracking-wider mb-4">Ev Tapşırığı</h3>
+                    <div className="glass rounded-xl p-6 sticky top-6 space-y-8">
+                        <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider">Ev Tapşırığı</h3>
 
                         {lesson.assignments && lesson.assignments.length > 0 ? (
-                            lesson.assignments.map((assignment: any) => (
-                                <div key={assignment.id} className="mb-6 last:mb-0">
-                                    <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-4 mb-3">
-                                        <h4 className="font-medium text-amber-400 mb-1">{assignment.title}</h4>
-                                        <p className="text-xs text-amber-200/70">
-                                            Son tarix: {new Date(assignment.due_date).toLocaleDateString('az-AZ')}
+                            // @ts-ignore
+                            lesson.assignments.map((assignment: any) => {
+                                const submission = submissions.find(s => s.assignment_id === assignment.id);
+                                const isSubmitted = !!submission;
+
+                                return (
+                                    <div key={assignment.id} className="space-y-4 pt-4 first:pt-0 border-t border-slate-800 first:border-0">
+                                        <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-4">
+                                            <h4 className="font-medium text-amber-400 mb-1">{assignment.title}</h4>
+                                            {assignment.due_date && (
+                                                <p className="text-xs text-amber-200/70 flex items-center mt-1">
+                                                    <Clock className="w-3 h-3 mr-1" />
+                                                    Son tarix: {new Date(assignment.due_date).toLocaleDateString('az-AZ')}
+                                                </p>
+                                            )}
+                                        </div>
+                                        <p className="text-sm text-slate-300 whitespace-pre-wrap">
+                                            {assignment.description}
                                         </p>
+
+                                        {isSubmitted ? (
+                                            <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-4 flex items-start space-x-3">
+                                                <CheckCircle className="w-5 h-5 text-emerald-400 mt-0.5" />
+                                                <div>
+                                                    <p className="text-sm font-medium text-emerald-400">Tapşırıq göndərilib</p>
+                                                    <p className="text-xs text-emerald-200/70 mt-1">
+                                                        Tarix: {new Date(submission.submitted_at).toLocaleDateString('az-AZ')}
+                                                    </p>
+                                                    {submission.grade && (
+                                                        <p className="text-sm font-bold text-white mt-2">
+                                                            Qiymət: {submission.grade}/100
+                                                        </p>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <form action={submitAssignment} className="space-y-3">
+                                                <input type="hidden" name="assignment_id" value={assignment.id} />
+                                                <input
+                                                    name="link"
+                                                    required
+                                                    placeholder="Link (GitHub, Google Docs...)"
+                                                    className="w-full bg-slate-900/50 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                                                />
+                                                <textarea
+                                                    name="comment"
+                                                    rows={2}
+                                                    placeholder="Şərhiniz (opsional)"
+                                                    className="w-full bg-slate-900/50 border border-slate-700 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                                                />
+                                                <button className="w-full py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-medium transition-colors text-sm shadow-lg shadow-emerald-900/20">
+                                                    Göndər
+                                                </button>
+                                            </form>
+                                        )}
                                     </div>
-                                    <p className="text-sm text-slate-300 mb-4 whitespace-pre-wrap">
-                                        {assignment.description}
-                                    </p>
-                                    <Link href={`/dashboard/assignments`} className="block w-full text-center py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg font-medium transition-colors shadow-lg shadow-emerald-900/20">
-                                        Tapşırığa Keç
-                                    </Link>
-                                </div>
-                            ))
+                                );
+                            })
                         ) : (
                             <div className="text-center py-6">
                                 <p className="text-slate-500 text-sm">Bu dərs üçün tapşırıq yoxdur.</p>
