@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { LayoutDashboard, BookOpen, FileText, CheckCircle, User, Users, GraduationCap, Settings, LogOut } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { motion } from "framer-motion";
 
 // Define menu items for each role
 const navigationByRole = {
@@ -52,9 +53,10 @@ export function Sidebar({ role = "student", fullName }: SidebarProps) {
     };
 
     return (
-        <div className="flex h-full w-64 flex-col bg-slate-900 text-white border-r border-slate-800">
-            <div className="flex h-20 items-center justify-center border-b border-slate-800 bg-white">
-                <div className="relative w-32 h-12">
+        <div className="flex h-full w-64 flex-col glass backdrop-blur-2xl border-r border-white/5 relative z-50">
+            {/* Logo Area */}
+            <div className="flex h-24 items-center justify-center border-b border-white/5 bg-gradient-to-b from-white/5 to-transparent">
+                <div className="relative w-36 h-14 opacity-90 hover:opacity-100 transition-opacity cursor-pointer">
                     <Image
                         src="/logo.png"
                         alt="QA Academy"
@@ -64,48 +66,63 @@ export function Sidebar({ role = "student", fullName }: SidebarProps) {
                     />
                 </div>
             </div>
-            <nav className="flex-1 space-y-1 px-2 py-4">
+
+            {/* Navigation */}
+            <nav className="flex-1 space-y-1 px-3 py-6 overflow-y-auto custom-scrollbar">
                 {navigation.map((item) => {
-                    const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
+                    const isActive = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href));
+
                     return (
                         <Link
-                            key={item.name}
+                            key={item.href}
                             href={item.href}
-                            className={cn(
-                                "group flex items-center rounded-md px-2 py-2 text-sm font-medium transition-colors",
-                                isActive
-                                    ? "bg-emerald-600 text-white"
-                                    : "text-slate-300 hover:bg-slate-800 hover:text-white"
-                            )}
+                            className="relative group flex items-center px-3 py-2.5 text-sm font-medium rounded-xl transition-all duration-300 overflow-hidden"
                         >
+                            {/* Active Background Animation */}
+                            {isActive && (
+                                <motion.div
+                                    layoutId="activeTab"
+                                    className="absolute inset-0 bg-gradient-to-r from-emerald-600/20 to-emerald-400/10 border border-emerald-500/20 rounded-xl"
+                                    transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                                />
+                            )}
+
+                            {/* Hover Glow */}
+                            <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl" />
+
                             <item.icon
                                 className={cn(
-                                    "mr-3 h-5 w-5 flex-shrink-0",
-                                    isActive ? "text-white" : "text-slate-400 group-hover:text-white"
+                                    "mr-3 h-5 w-5 flex-shrink-0 relative z-10 transition-colors duration-300",
+                                    isActive ? "text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]" : "text-slate-400 group-hover:text-slate-200"
                                 )}
                             />
-                            {item.name}
+                            <span className={cn(
+                                "relative z-10 transition-colors duration-300",
+                                isActive ? "text-white font-semibold" : "text-slate-400 group-hover:text-slate-200"
+                            )}>
+                                {item.name}
+                            </span>
                         </Link>
                     );
                 })}
             </nav>
-            <div className="border-t border-slate-800 p-4">
-                <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center">
-                        <div className="h-9 w-9 rounded-full bg-emerald-500 flex items-center justify-center text-sm font-bold uppercase text-white shadow-lg shadow-emerald-900/20">
-                            {fullName.charAt(0)}
-                        </div>
-                        <div className="ml-3">
-                            <p className="text-sm font-medium text-white max-w-[100px] truncate" title={fullName}>{fullName}</p>
-                            <p className="text-xs text-slate-400 capitalize">{role === 'teacher' ? 'Müəllim' : role === 'admin' ? 'Administrator' : 'Tələbə'}</p>
-                        </div>
+
+            {/* User Profile */}
+            <div className="p-4 bg-gradient-to-t from-black/40 to-transparent border-t border-white/5">
+                <div className="flex items-center space-x-3 mb-4 p-2 rounded-lg bg-white/5 border border-white/5">
+                    <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white font-bold shadow-lg shadow-emerald-500/20">
+                        {fullName.charAt(0)}
+                    </div>
+                    <div className="overflow-hidden">
+                        <p className="text-sm font-semibold text-white truncate">{fullName}</p>
+                        <p className="text-xs text-slate-400 tracking-wide uppercase">{role === 'teacher' ? 'Müəllim' : role === 'admin' ? 'Admin' : 'Tələbə'}</p>
                     </div>
                 </div>
                 <button
                     onClick={handleSignOut}
-                    className="flex w-full items-center justify-center rounded-md bg-slate-800 px-3 py-2 text-sm text-slate-300 hover:bg-slate-700 hover:text-white transition-colors"
+                    className="flex w-full items-center justify-center rounded-lg bg-white/5 hover:bg-red-500/10 border border-white/5 hover:border-red-500/20 px-3 py-2 text-sm text-slate-400 hover:text-red-400 transition-all duration-300 group"
                 >
-                    <LogOut className="mr-2 h-4 w-4" />
+                    <LogOut className="mr-2 h-4 w-4 group-hover:scale-110 transition-transform" />
                     Çıxış
                 </button>
             </div>
