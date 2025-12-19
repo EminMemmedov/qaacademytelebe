@@ -27,7 +27,8 @@ export default function LoginPage() {
         });
 
         if (signInError) {
-            setError("Email və ya şifrə yanlışdır.");
+            console.error("Login error:", signInError);
+            setError(signInError.message);
             setLoading(false);
             return;
         }
