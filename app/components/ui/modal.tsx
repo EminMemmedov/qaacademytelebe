@@ -76,7 +76,7 @@ const Modal = forwardRef<HTMLDivElement, ModalProps>(
                         {/* Modal */}
                         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
                             <motion.div
-                                ref={ref}
+                                ref={ref as any}
                                 initial={{ opacity: 0, scale: 0.95, y: 20 }}
                                 animate={{ opacity: 1, scale: 1, y: 0 }}
                                 exit={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -87,7 +87,7 @@ const Modal = forwardRef<HTMLDivElement, ModalProps>(
                                     sizes[size],
                                     className
                                 )}
-                                {...props}
+                                {...(props as any)}
                             >
                                 {/* Header */}
                                 {(title || showCloseButton) && (

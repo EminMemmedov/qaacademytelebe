@@ -32,7 +32,7 @@ export function EmptyState({
                 "flex flex-col items-center justify-center py-12 px-4 text-center",
                 className
             )}
-            {...props}
+            {...(props as any)}
         >
             {Icon && (
                 <div className="mb-4 p-4 rounded-full bg-slate-800/50 border border-white/5">
