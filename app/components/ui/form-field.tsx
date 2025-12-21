@@ -47,6 +47,7 @@ export interface TextareaProps extends HTMLAttributes<HTMLTextAreaElement> {
     error?: string;
     helperText?: string;
     rows?: number;
+    required?: boolean;
 }
 
 const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
@@ -57,6 +58,7 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
             error,
             helperText,
             rows = 4,
+            required,
             ...props
         },
         ref
@@ -66,13 +68,14 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
                 {label && (
                     <label className="block text-sm font-medium text-slate-300">
                         {label}
-                        {props.required && <span className="text-red-400 ml-1">*</span>}
+                        {required && <span className="text-red-400 ml-1">*</span>}
                     </label>
                 )}
 
                 <textarea
                     ref={ref}
                     rows={rows}
+                    required={required}
                     className={cn(
                         "w-full bg-slate-900/50 border rounded-lg px-4 py-3 text-white text-sm",
                         "placeholder:text-slate-500",
