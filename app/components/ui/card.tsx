@@ -29,10 +29,10 @@ const Card = forwardRef<HTMLDivElement, CardProps>(
 
         return (
             <Component
-                ref={ref}
+                ref={ref as any}
                 className={cn(baseStyles, variants[variant], className)}
                 {...motionProps}
-                {...props}
+                {...(props as any)}
             >
                 {children}
             </Component>
