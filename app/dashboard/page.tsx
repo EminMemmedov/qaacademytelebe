@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { BookOpen, CheckCircle, Clock } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { ProgressDashboard } from "@/components/dashboard/progress-dashboard";
 
 export default async function DashboardPage() {
     const supabase = await createClient();
@@ -17,12 +18,12 @@ export default async function DashboardPage() {
     const { data: profile } = await supabase
         .from("profiles")
         .select(`
-            *,
-            cohort:cohorts (
-                id,
-                name,
-                course:courses(title)
-            )
+    *,
+    cohort: cohorts(
+        id,
+        name,
+        course: courses(title)
+    )
         `)
         .eq("id", user.id)
         .single();
@@ -43,12 +44,12 @@ export default async function DashboardPage() {
         const { data: assignments } = await supabase
             .from("assignments")
             .select(`
-                id,
-                title,
-                due_date,
-                lesson:lessons(title)
+id,
+    title,
+    due_date,
+    lesson: lessons(title)
             `)
-            .eq("cohort_id", cohortId)
+            .eq("lesson.cohort_id", cohortId)
             .gte("due_date", new Date().toISOString()) // Future dates
             .order("due_date", { ascending: true })
             .limit(5);
@@ -59,23 +60,23 @@ export default async function DashboardPage() {
         }
 
         // B. Fetch Attendance Stats
-        const { data: attendance } = await supabase
+        const { data: attendanceRecords } = await supabase
             .from("attendance_records")
             .select("status")
             .eq("student_id", user.id);
 
-        if (attendance && attendance.length > 0) {
-            const presentCount = attendance.filter(r => r.status === 'present').length;
-            attendanceRate = Math.round((presentCount / attendance.length) * 100);
+        if (attendanceRecords && attendanceRecords.length > 0) {
+            const presentCount = attendanceRecords.filter(r => r.status === 'present').length;
+            attendanceRate = Math.round((presentCount / attendanceRecords.length) * 100);
         }
 
         // C. Fetch Lessons (Total vs Completed logic - simplified for now)
         // We will just list recent lessons for the cohort
         const { data: lessons } = await supabase
             .from("lessons")
-            .select("*")
+            .select("id, title, created_at")
             .eq("cohort_id", cohortId)
-            .order("date", { ascending: false }) // Newest first
+            .order("created_at", { ascending: false }) // Newest first
             .limit(3);
 
         if (lessons) {
@@ -98,7 +99,7 @@ export default async function DashboardPage() {
     // Stats Array
     const stats = [
         { name: "Gözləyən Tapşırıqlar", value: pendingAssignmentsCount.toString(), icon: Clock, color: "text-amber-400" },
-        { name: "İştirak Faizi", value: `${attendanceRate}%`, icon: CheckCircle, color: "text-emerald-400" },
+        { name: "İştirak Faizi", value: `${attendanceRate}% `, icon: CheckCircle, color: "text-emerald-400" },
         { name: "Keçirilən Dərslər", value: totalLessonsCount.toString(), icon: BookOpen, color: "text-blue-400" },
     ];
 
@@ -111,18 +112,32 @@ export default async function DashboardPage() {
                 <p className="text-slate-400 mt-2">
                     {profile?.cohort
                         ? `${// @ts-ignore 
-                        profile.cohort.name} Qrupu • ${// @ts-ignore 
-                        profile.cohort.course?.title || 'Kurs'}`
+                        profile.cohort.name
+                        } Qrupu • ${// @ts-ignore 
+                        profile.cohort.course?.title || 'Kurs'
+                        } `
                         : "Sizə hələ heç bir qrup təyin olunmayıb."}
                 </p>
             </div>
+
+            {/* Progress Dashboard */}
+            {profile?.cohort_id && (
+                <ProgressDashboard
+                    stats={{
+                        completedLessons: completedLessonsCount,
+                        totalLessons: totalLessonsCount,
+                        attendanceRate,
+                        pendingAssignments: pendingAssignmentsCount,
+                    }}
+                />
+            )}
 
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {stats.map((item) => (
                     <div key={item.name} className="glass rounded-xl p-6 shadow-sm relative overflow-hidden group hover:bg-white/10 transition-colors">
                         <div className="flex items-center">
                             <div className="p-3 rounded-lg bg-white/5 group-hover:bg-white/10 transition-colors">
-                                <item.icon className={`h-8 w-8 ${item.color}`} />
+                                <item.icon className={`h - 8 w - 8 ${item.color} `} />
                             </div>
                             <div className="ml-5">
                                 <p className="text-sm font-medium text-slate-400 truncate">{item.name}</p>
@@ -170,7 +185,7 @@ export default async function DashboardPage() {
                     <div className="space-y-4">
                         {recentLessons.length > 0 ? (
                             recentLessons.map((lesson) => (
-                                <Link href={`/dashboard/lessons/${lesson.id}`} key={lesson.id} className="block group">
+                                <Link href={`/ dashboard / lessons / ${lesson.id} `} key={lesson.id} className="block group">
                                     <div className="p-4 rounded-lg bg-white/5 group-hover:bg-white/10 transition-colors border border-white/5">
                                         <h3 className="text-white font-medium group-hover:text-emerald-400 transition-colors">{lesson.title}</h3>
                                         <div className="flex justify-between items-center mt-2">
