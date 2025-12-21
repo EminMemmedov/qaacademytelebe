@@ -1,4 +1,5 @@
 import { Sidebar } from "@/components/layout/sidebar";
+import { MobileMenu } from "@/components/layout/mobile-menu";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
@@ -27,8 +28,10 @@ export default async function DashboardLayout({
 
     return (
         <div className="flex h-screen bg-slate-50">
-            <Sidebar role={userRole} fullName={userName} />
-            <main className="flex-1 overflow-y-auto p-8 border-l border-slate-200/10 bg-[#0a0a0a]">
+            <MobileMenu>
+                <Sidebar role={userRole} fullName={userName} />
+            </MobileMenu>
+            <main className="flex-1 overflow-y-auto p-4 lg:p-8 bg-[#0a0a0a] pt-16 lg:pt-8">
                 {children}
             </main>
         </div>

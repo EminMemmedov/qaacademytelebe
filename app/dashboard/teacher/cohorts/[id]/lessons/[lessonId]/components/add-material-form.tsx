@@ -2,36 +2,27 @@
 
 import { Plus, Loader2 } from "lucide-react";
 import { useState } from "react";
-// We pass the server action as a prop or import it if possible (but imports from server file to client file are restricted).
-// Better pattern: Define action in a separate 'actions.ts' file. 
-// OR: Just keep it simple and use useFormStatus if we had it, but for now standard form submit is fine.
+import toast from "react-hot-toast";
 
 export function AddMaterialForm({ lessonId, cohortId, action }: { lessonId: string, cohortId: string, action: any }) {
     const [loading, setLoading] = useState(false);
 
     async function handleSubmit(formData: FormData) {
         setLoading(true);
-        try {
-            // We call the action directly. Note: action is already bound or we pass args here if we change signature.
-            // Actually, best practice with Server Actions + Client Components is passing valid closure BUT since we moved to actions.ts
-            // we should probably import the action in the Parent and pass it down, OR import in Client Component?
-            // Next.js allows importing Server Actions into Client Components. 
-            // Let's assume 'action' prop is the bound version or wrapper.
-            // BUT wait, in the previous step I defined action as (formData, lessonId, cohortId).
-            // Passing it via props is cleaner if we bind it in the parent.
+        const toastId = toast.loading("Material əlavə olunur...");
 
+        try {
             const result = await action(formData);
             if (result && !result.success) {
-                alert(result.message);
+                toast.error(result.message || "Xəta baş verdi", { id: toastId });
             } else {
-                alert("Material uğurla yükləndi! ✅");
-                // Optional: Reset file input by clearing the form
+                toast.success("Material uğurla əlavə edildi! ✅", { id: toastId });
                 const form = document.getElementById("upload-form") as HTMLFormElement;
                 if (form) form.reset();
             }
         } catch (e) {
             console.error(e);
-            alert("Xəta baş verdi.");
+            toast.error("Xəta baş verdi", { id: toastId });
         } finally {
             setLoading(false);
         }
